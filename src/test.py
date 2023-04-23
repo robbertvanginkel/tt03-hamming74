@@ -32,7 +32,7 @@ WORD_CODEWORD_MAPPING = {
 async def test_hamming74_encode(dut):
     for word, codeword in WORD_CODEWORD_MAPPING.items():
         dut.io_in.value = FLAG_ENCODE | word
-        await Timer(1, units="step")
+        await Timer(10, units="step")
         dut._log.info(
             f"in: {dut.io_in.value}, out: {dut.io_out.value}, expect: {codeword:08b}"
         )
@@ -46,7 +46,7 @@ async def test_hamming74_decode(dut):
         for mutation in [0] + [1 << x for x in range(0, 7)]:
             expect = word | FLAG_ERROR if mutation else word
             dut.io_in.value = FLAG_DECODE | (codeword ^ mutation)
-            await Timer(1, units="step")
+            await Timer(10, units="step")
             dut._log.info(
                 f"in: {dut.io_in.value}, out: {dut.io_out.value}, expect: {expect:08b}"
             )
