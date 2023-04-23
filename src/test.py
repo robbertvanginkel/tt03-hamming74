@@ -1,7 +1,14 @@
 import cocotb
 from cocotb.triggers import Timer
 
-test_encode = {
+# Flags as used by src/{encoder,decoder,main}.v
+FLAG_ENCODE = 0b00000000
+FLAG_DECODE = 0b10000000
+FLAG_ERROR = 0b00010000
+MASK_RESULT = 0b00001111
+
+# Exhaustive list of words and their expected codewords
+WORD_CODEWORD_MAPPING = {
     0b0000: 0b0000000,
     0b0001: 0b0000111,
     0b0010: 0b0011001,
@@ -17,31 +24,30 @@ test_encode = {
     0b1100: 0b1100001,
     0b1101: 0b1100110,
     0b1110: 0b1111000,
-    0b1111: 0b1111111, 
+    0b1111: 0b1111111,
 }
+
 
 @cocotb.test()
 async def test_hamming74_encode(dut):
-    # dut._log.info("start")
-    for word, codeword in test_encode.items():
-        dut.io_in.value = word
+    for word, codeword in WORD_CODEWORD_MAPPING.items():
+        dut.io_in.value = FLAG_ENCODE | word
         await Timer(1, units="step")
-        dut._log.info("in: %s, out: %s", "{0:08b}".format(word), dut.io_out.value)
-        assert int(dut.io_out.value) == int(codeword)
+        dut._log.info(
+            f"in: {dut.io_in.value}, out: {dut.io_out.value}, expect: {codeword:08b}"
+        )
+        assert dut.io_out.value.binstr == f"{codeword:08b}"
 
 
 @cocotb.test()
 async def test_hamming74_decode(dut):
-    for word, codeword in test_encode.items():
-        dut.io_in.value = 0b10000000 | codeword
-        await Timer(1, units="step")
-        dut._log.info("in: %s, out: %s, expect: %s", dut.io_in.value, dut.io_out.value, "{0:08b}".format(word))
-        assert dut.io_out.value.binstr ==  "{0:08b}".format(word)
-        await Timer(1, units="step")
-
-
-@cocotb.test()
-async def test_hamming74_manual(dut):
-    dut.io_in.value = 0b10000000 | 0b01110000
-    await Timer(1, units="step")
-    dut._log.info("in: %s, out: %s", dut.io_in.value, dut.io_out.value)
+    for word, codeword in WORD_CODEWORD_MAPPING.items():
+        # for decode, verify all 1 bit mutations of codeword map to word (with error bit set if necessary)
+        for mutation in [0] + [1 << x for x in range(0, 7)]:
+            expect = word | FLAG_ERROR if mutation else word
+            dut.io_in.value = FLAG_DECODE | (codeword ^ mutation)
+            await Timer(1, units="step")
+            dut._log.info(
+                f"in: {dut.io_in.value}, out: {dut.io_out.value}, expect: {expect:08b}"
+            )
+            assert dut.io_out.value.binstr == f"{expect:08b}"

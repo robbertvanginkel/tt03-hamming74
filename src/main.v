@@ -27,7 +27,6 @@ always @(*) begin
         io_out[3:0] <= decoder_out_data;
         io_out[4] <= decoder_out_error;
         io_out[7:5] <= 3'b000;
-        
     end
 end
 
