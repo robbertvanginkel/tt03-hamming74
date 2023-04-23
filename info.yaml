@@ -6,9 +6,10 @@ project:
 # If using an HDL, set wokwi_id as 0 and uncomment and list your source files here. 
 # Source files must be in ./src and you must list each source file separately
   source_files:        
-    - counter.v
+    - encoder.v
     - decoder.v
-  top_module:  "seven_segment_seconds"      # put the name of your top module here, make it unique by prepending your github username
+    - main.v
+  top_module:  "robbertvanginkel_hamming74"      # put the name of your top module here, make it unique by prepending your github username
 
 # Keep a track of the submission yaml
 yaml_version: 3.0
@@ -18,32 +19,29 @@ yaml_version: 3.0
 #
 # Here is a great example: https://github.com/davidsiaw/tt02-davidsiaw-stackcalc/blob/38c5647f83aad2aec675d566aa3d67b98f0aac81/info.yaml
 documentation: 
-  author:       "Matt Venn"
-  title:        "7 segment seconds"
+  author:       "Robbert"
+  title:        Hamming(7,4) encoder decoder"
   language:     "Verilog"
   description:  "Count up to 10, one second at a time."
 
 # Longer description of how the project works. You can use standard markdown format.
   how_it_works: |
-      Uses a set of registers to divide the clock, and then some combinational logic
-      to convert from binary to decimal for the display.
-
-      Puts a slower square wave output on output 7.
+      Encodes and decodes data using hammingn 7,4 codes.
 
 # Instructions on how someone could test your project, include things like what buttons do what and how to set the clock if needed
   how_to_test:  |
-      After reset, the counter should increase by one every second.
+      
 
 # A description of what the inputs do
   inputs:               
-    - clock
-    - reset
-    - none
-    - none
-    - none
-    - none
-    - none
-    - none
+    - "mode (0: encode, 1: decode)"
+    - data
+    - data
+    - data
+    - data
+    - none, data
+    - none, data
+    - none, data
 # A description of what the outputs do
   outputs:
     - segment a
@@ -53,7 +51,7 @@ documentation:
     - segment e
     - segment f
     - segment g
-    - slow clock output
+    - none
 
 # The following fields are optional
   tag:          "timer, test"      # comma separated list of tags: test encryption, experiment, clock, animation, utility, industrial, pwm, fpga, alu, microprocessor, risc, riscv, sensor, signal generator, fft, filter, music, bcd, sound, serial, timer, random number generator, calculator, decoder, counter, puzzle, multiplier, game, oscillator,
